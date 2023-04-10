@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- region Your particular project data -->
+    <groupId>org.white_sdev</groupId>
+    <artifactId>league-of-legends-role-identification</artifactId>
+    <version>0.1-SNAPSHOT</version>
+    <name>${project.groupId}:${project.artifactId}</name>
+    <description>This library will help you to take an educated guess and calculate the rol/position/lane in which a champion will or should be in a 5v5 team of a League of Legends match</description>
+    <!-- This section (packaging) can be defined if the project is meant to be a desktop application or a JAR will be generated. -->
+    <packaging>jar</packaging>
+    <!--endregion-->
+
+    <properties>
+        <!-- region Configure Java version & Main full package and class name -->
+        <!-- WARNING: add release scope if 1.9 and older versions are used at build/plugins/plugin/[maven-compiler-plugin]/configuration-->
+        <java.version>19</java.version>
+        <!--endregion-->
+        <!-- region General configurations of the project -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
+        <!-- In case the compiling device doesn't have docker installed you can create the docker img with Jib -->
+<!--        <jkube.build.strategy>jib</jkube.build.strategy>-->
+        <!-- endregion General configurations of the project -->
+    </properties>
+
+    <dependencies>
+        
+        <!-- region Logger Configuration -->
+        <!-- logger guide https://gist.github.com/stykalin/8c77ad2a705eabddc2424eff0e99d1ec -->
+        <!-- Spring Boot already has this library -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j-impl</artifactId>
+            <version>2.17.2</version>
+        </dependency>
+        <!-- endregion -->
+
+        <!-- region Lombok (Annotations) Configuration -->
+        <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.26</version>
+            <type>jar</type>
+        </dependency>
+        <!-- endregion -->
+    </dependencies>
+
+    <!-- region disable DockLint -->
+    <!-- Eliminates the JavaDoc problems in later versions when you have problems in the documentation -->
+    <profiles>
+        <profile>
+            <id>disable-java8-doclint</id>
+            <activation>
+                <jdk>[1.8,)</jdk>
+            </activation>
+            <properties>
+                <doclint>none</doclint>
+            </properties>
+        </profile>
+    </profiles>
+    <!-- endregion disable DockLint -->
+
+    <build>
+        <plugins>
+            <!-- region Established the java version defined in the properties' section for every scope (compatible with newer java versions) -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                    <!-- WARNING: add release property for 1.9 and older versions -->
+                    <release>${java.version}</release>
+                </configuration>
+            </plugin>
+            <!-- endregion -->
+        </plugins>
+    </build>
+
+</project>
