@@ -2,7 +2,6 @@ package org.white_sdev.white_gaming.lol;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
-import lombok.NoArgsConstructor;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -11,7 +10,6 @@ import java.util.stream.Collectors;
  * TODO: Complete class documentation
  */
 @lombok.extern.slf4j.Slf4j
-@NoArgsConstructor
 @SuppressWarnings("unused")
 public class RoleIdentifier <Champion, Role>{
 	List<Role> roles;
@@ -661,48 +659,60 @@ public class RoleIdentifier <Champion, Role>{
 		List<Role> unassignedRoles = new ArrayList<>(roles);
 		Map<Role, Champion> guesstimate = new HashMap<>();
 		
-		int iterations = 4;
-		for (int i = 0; i++ <iterations;) {
+		int iterations = 7;
+		boolean lastIterationAssignedRole = true;
+		for (int i = 0; i<iterations; i++) {
+			boolean iterationAssignedRole = false;
+			log.debug("{}Iteration:{}.  unassignedRoles:{}.  unassignedChampions:{}", logID, i, unassignedRoles, unassignedChampions);
 			for (var role : new ArrayList<>(unassignedRoles)) {
 				log.debug("{}Role:{}", logID, role);
-				HashSet<Champion> championsThatCanBeInThatRole = new HashSet<>(getChampionsWithPrimaryRole(role, unassignedChampions));
-				championsThatCanBeInThatRole.addAll( getChampionsWithRole(role, unassignedChampions));
+				
+				var championsWithPrimary = getChampionsWithPrimaryRole(role, unassignedChampions);
+				log.debug("{}championsWithPrimary:{}", logID, championsWithPrimary);
+				var championsWithSecondary = getChampionsWithRole(role, unassignedChampions);
+				log.debug("{}championsWithSecondary:{}", logID, championsWithSecondary);
+				HashSet<Champion> championsThatCanBeInThatRole = new HashSet<>(championsWithPrimary);
+				championsThatCanBeInThatRole.addAll(championsWithSecondary);
 				log.debug("{}championsThatCanBeInThatRole:{}", logID, championsThatCanBeInThatRole);
+				
 				if (championsThatCanBeInThatRole.size() == 1) {
 					var foundChampion = championsThatCanBeInThatRole.iterator().next();
-					log.debug("{}adding foundChampion:{} to role:{}", logID, foundChampion, role);
+					log.debug("{}ASSIGNED - foundChampion:{} to role:{}", logID, foundChampion, role);
+					unassignedRoles.remove(role);
+					unassignedChampions.remove(foundChampion);
+					guesstimate.put(role, foundChampion);
+					iterationAssignedRole = true;
+				}
+				
+				if(!lastIterationAssignedRole && !championsThatCanBeInThatRole.isEmpty()){
+					if(championsThatCanBeInThatRole.size()>1){
+						if(championsWithPrimary.size()>=1){
+							var foundChampion = championsWithPrimary.iterator().next(); //TODO add the one with higher score.
+							log.debug("{}ASSIGNED - a primary role on champion:{} to role:{} was found.", logID, foundChampion, role);
+							unassignedRoles.remove(role);
+							unassignedChampions.remove(foundChampion);
+							guesstimate.put(role, foundChampion);
+							iterationAssignedRole = true;
+							lastIterationAssignedRole = true;
+							continue;
+						}
+					}
+					var foundChampion = championsThatCanBeInThatRole.iterator().next(); //TODO add the one with higher score.
+					log.debug("{}ASSIGNED - No primary role but found secondary on champion:{} to role:{}", logID, foundChampion, role);
 					unassignedRoles.remove(role);
 					unassignedChampions.remove(foundChampion);
 					guesstimate.put(role, foundChampion);
 				}
 			}
+			if((!lastIterationAssignedRole && iterationAssignedRole) || unassignedRoles.isEmpty()) break;
+			lastIterationAssignedRole = iterationAssignedRole;
 		}
 		
+		log.debug("{}Adding the rest of the Champions:{} that could not find any role of:{}", logID, unassignedChampions, unassignedRoles);
 		
-		for(var role : new ArrayList<>(unassignedRoles)){
-			var championsWithPrimary = getChampionsWithPrimaryRole(role, unassignedChampions);
-			var championsWithSecondary = getChampionsWithRole(role, unassignedChampions);
-			HashSet<Champion> championsThatCanBeInThatRole = new HashSet<>(championsWithPrimary);
-			championsThatCanBeInThatRole.addAll(championsWithSecondary);
-			if(!championsThatCanBeInThatRole.isEmpty()){
-				if(championsThatCanBeInThatRole.size()>1){
-					if(championsWithPrimary.size()>=1){
-						var foundChampion = championsWithPrimary.iterator().next();
-						unassignedRoles.remove(role);
-						unassignedChampions.remove(foundChampion);
-						guesstimate.put(role, foundChampion);
-						continue;
-					}
-				}
-				var foundChampion = championsThatCanBeInThatRole.iterator().next();
-				unassignedRoles.remove(role);
-				unassignedChampions.remove(foundChampion);
-				guesstimate.put(role, foundChampion);
-			}
-		}
+		for (int i = 0; i < unassignedChampions.size();i++)  guesstimate.put(unassignedRoles.get(i), unassignedChampions.get(i));
 		
-		for (int i = 0; ++i < unassignedChampions.size();)  guesstimate.put(unassignedRoles.get(i), unassignedChampions.get(i));
-		
+		log.info("{}Team Composition Guessed: {}", logID, guesstimate);
 		return guesstimate;
 	}
 	
