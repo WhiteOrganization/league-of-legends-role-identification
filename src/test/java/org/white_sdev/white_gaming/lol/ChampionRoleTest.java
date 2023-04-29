@@ -13,17 +13,45 @@ import static org.assertj.core.api.Assertions.assertThat;
 @lombok.extern.slf4j.Slf4j
 public class ChampionRoleTest {
 	//region String Compositions
+	
+	
+	@Test
+	public void sacrificePrimaryRoleForAnotherChampionToNotBeUseless() {
+		Set<String> champions = Set.of("Yuumi", "Soraka", "Lucian", "Gnar", "Zilean");
+		Map<String, String> championRoles = RoleIdentifier.identifyStringRoles(champions);
+		assertThat(championRoles)
+				.as("It works with an easy composition")
+				.containsEntry("Zilean", "Top")
+				.containsEntry("Soraka", "Middle")
+				.containsEntry("Lucian", "Bottom")
+				.containsEntry("Yuumi", "Utility")
+				.containsEntry("Gnar", "Jungle");
+	}
+	
+	@Test
+	public void sennaIsNotSupComposition() {
+		Set<String> champions = Set.of("Annie", "Ziggs", "Senna", "Nunu", "Heimerdinger");
+		Map<String, String> championRoles = RoleIdentifier.identifyStringRoles(champions);
+		assertThat(championRoles)
+				.as("It works with an easy composition")
+				.containsEntry("Heimerdinger", "Top")
+				.containsEntry("Annie", "Middle")
+				.containsEntry("Ziggs", "Bottom")
+				.containsEntry("Senna", "Utility")
+				.containsEntry("Nunu", "Jungle");
+	}
+	
 	@Test
 	public void easyComposition() {
 		Set<String> champions = Set.of("Aatrox", "Alistar", "Ashe", "Azir", "Belveth");
 		Map<String, String> championRoles = RoleIdentifier.identifyStringRoles(champions);
 		assertThat(championRoles)
 				.as("It works with an easy composition")
-				.containsEntry("Top", "Aatrox")
-				.containsEntry("Middle", "Azir")
-				.containsEntry("Bottom", "Ashe")
-				.containsEntry("Utility", "Alistar")
-				.containsEntry("Jungle", "Belveth");
+				.containsEntry("Aatrox", "Top")
+				.containsEntry("Azir", "Middle")
+				.containsEntry("Ashe", "Bottom")
+				.containsEntry("Alistar", "Utility")
+				.containsEntry("Belveth", "Jungle");
 	}
 	
 	@Test
@@ -32,10 +60,10 @@ public class ChampionRoleTest {
 		Map<String, String> championRoles = RoleIdentifier.identifyStringRoles(champions);
 		assertThat(championRoles)
 				.as("It accepts incomplete compositions and answers correctly")
-				.containsEntry("Top", "Garen")
-				.containsEntry("Middle", "Syndra")
-				.containsKey("Bottom")
-				.containsValues("Zeri","Veigar");
+				.containsEntry("Garen", "Top")
+				.containsEntry("Syndra", "Middle")
+				.containsValue("Bottom")
+				.containsKeys("Zeri","Veigar");
 	}
 	
 	@Test
@@ -44,11 +72,11 @@ public class ChampionRoleTest {
 		Map<String, String> championRoles = RoleIdentifier.identifyStringRoles(champions);
 		assertThat(championRoles)
 				.as("It works with a complex composition")
-				.containsKey("Middle")
-				.doesNotContainEntry("Middle", "Vayne")
-				.doesNotContainEntry("Top", "Senna")
-				.containsKey("Utility")
-				.containsEntry("Jungle", "Rumble");
+				.containsValue("Middle")
+				.doesNotContainEntry("Vayne", "Middle")
+				.doesNotContainEntry("Senna", "Top")
+				.containsValue("Utility")
+				.containsEntry("Rumble", "Jungle");
 	}
 	
 	@Test
@@ -57,11 +85,11 @@ public class ChampionRoleTest {
 		Map<String, String> championRoles = RoleIdentifier.identifyStringRoles(champions);
 		assertThat(championRoles)
 				.as("It works even with a single role sup Composition")
-				.containsKey("Top")
-				.containsKey("Middle")
-				.containsKey("Bottom")
-				.containsKey("Utility")
-				.containsKey("Jungle");
+				.containsEntry("Taric", "Utility")
+				.containsValue("Top")
+				.containsValue("Middle")
+				.containsValue("Bottom")
+				.containsValue("Jungle");
 	}
 	
 	@Test
@@ -70,11 +98,24 @@ public class ChampionRoleTest {
 		Map<String, String> championRoles = RoleIdentifier.identifyStringRoles(champions);
 		assertThat(championRoles)
 				.as("It works with an easy composition")
-				.containsEntry("Top","Cassiopeia")
-				.containsEntry("Utility","Velkoz")
-				.containsEntry("Jungle","JarvanIV")
-				.containsEntry("Bottom","Kaisa")
-				.containsEntry("Middle","Rumble");
+				.containsEntry("Cassiopeia", "Top")
+				.containsEntry("Velkoz", "Utility")
+				.containsEntry("JarvanIV", "Jungle")
+				.containsEntry("Kaisa", "Bottom")
+				.containsEntry("Rumble", "Middle");
+	}
+	
+	@Test
+	public void cochilepoTest2(){
+		Set<String> champions = Set.of("Volibear", "Lulu", "Soraka", "Quinn", "Lucian");
+		Map<String, String> championRoles = RoleIdentifier.identifyStringRoles(champions);
+		assertThat(championRoles)
+				.as("It works with an easy composition")
+				.containsEntry("Quinn", "Top")
+				.containsEntry("Lulu", "Middle")
+				.containsEntry("Volibear", "Jungle")
+				.containsEntry("Lucian", "Bottom")
+				.containsEntry("Soraka", "Utility");
 	}
 	
 	@Test
@@ -83,11 +124,11 @@ public class ChampionRoleTest {
 		Map<String, String> championRoles = RoleIdentifier.identifyStringRoles(champions);
 		assertThat(championRoles)
 				.as("It works with an easy composition")
-				.containsEntry("Utility","Velkoz")
-				.containsEntry("Middle","Cassiopeia")
-				.containsEntry("Jungle","JarvanIV")
-				.containsEntry("Bottom","Jinx")
-				.containsEntry("Top","Vayne");
+				.containsEntry("Velkoz", "Utility")
+				.containsEntry("Cassiopeia", "Middle")
+				.containsEntry("JarvanIV", "Jungle")
+				.containsEntry("Jinx", "Bottom")
+				.containsEntry("Vayne", "Top");
 	}
 	
 	@Test
@@ -96,11 +137,11 @@ public class ChampionRoleTest {
 		Map<String, String> championRoles = RoleIdentifier.identifyStringRoles(champions);
 		assertThat(championRoles)
 				.as("It works with an easy composition")
-				.containsEntry("Top","Vayne")
-				.containsEntry("Jungle","Zed")
-				.containsEntry("Bottom","Kaisa")
-				.containsEntry("Utility","Velkoz")
-				.containsEntry("Middle","Lux");
+				.containsEntry("Vayne", "Top")
+				.containsEntry("Zed", "Jungle")
+				.containsEntry("Kaisa", "Bottom")
+				.containsEntry("Velkoz", "Utility")
+				.containsEntry("Lux", "Middle");
 	}
 	
 	@Test
@@ -109,11 +150,68 @@ public class ChampionRoleTest {
 		Map<String, String> championRoles = RoleIdentifier.identifyStringRoles(champions);
 		assertThat(championRoles)
 				.as("It works with an easy composition")
-				.containsEntry("Top","Vayne")
-				.containsEntry("Jungle","Karthus")
-				.containsEntry("Bottom","Ashe")
-				.containsEntry("Utility","Senna")
-				.containsEntry("Middle","Tristana");
+				.containsEntry("Vayne", "Top")
+				.containsEntry("Karthus", "Jungle")
+				.containsEntry("Ashe", "Bottom")
+				.containsEntry("Senna", "Utility")
+				.containsEntry("Tristana", "Middle");
+	}
+	
+	@Test
+	public void lamentumTest1(){
+		Set<String> champions = Set.of("Malphite", "Volibear", "Graves", "Lux", "Vayne");
+		Map<String, String> championRoles = RoleIdentifier.identifyStringRoles(champions);
+		assertThat(championRoles)
+				.as("It works with an easy composition")
+				.containsEntry("Graves", "Top")
+				.containsEntry("Volibear", "Jungle")
+				.containsEntry("Vayne", "Bottom")
+				.containsEntry("Lux", "Utility")
+				.containsEntry("Malphite", "Middle");
+	}
+	
+	@Test
+	public void tryndaMidComposition(){
+		Set<String> champions = Set.of("Tryndamere", "Rammus", "Vayne", "Kalista", "Maokai");
+		Map<String, String> championRoles = RoleIdentifier.identifyStringRoles(champions);
+		assertThat(championRoles)
+				.as("It works with an easy composition")
+				.containsEntry("Vayne", "Top")
+				.containsEntry("Rammus", "Jungle")
+				.containsEntry("Kalista", "Bottom")
+				.containsEntry("Maokai", "Utility")
+				.containsEntry("Tryndamere", "Middle");
+	}
+	
+	@Test
+	public void fabianTest1(){
+		Set<String> champions = Set.of("Yone", "Poppy", "Malphite", "Yasuo", "Alistar");
+		Map<String, String> championRoles = RoleIdentifier.identifyStringRoles(champions);
+		assertThat(championRoles)
+				.as("It works with an easy composition")
+				.containsEntry("Malphite", "Top")
+				.containsEntry("Yone", "Middle")
+				.containsEntry("Poppy", "Jungle")
+				.containsEntry("Yasuo", "Bottom")
+				.containsEntry("Alistar", "Utility");
+	}
+	
+	@Test
+	public void oneChampionGuess(){
+		Set<String> champions = Set.of("Taric");
+		Map<String, String> championRoles = RoleIdentifier.identifyStringRoles(champions);
+		assertThat(championRoles)
+				.as("It works with an 1 champion composition")
+				.containsEntry("Taric", "Utility");
+	}
+	
+	@Test
+	@SuppressWarnings("all")
+	public void emptyGuess(){
+		Set<String> champions = new HashSet<>(0);
+		Map<String, String> championRoles = RoleIdentifier.identifyStringRoles(champions);
+		assertThat(championRoles)
+				.as("It works with an empty composition");
 	}
 	
 	//endregion String Compositions
@@ -156,14 +254,14 @@ public class ChampionRoleTest {
 				champion->championsRoles.addAll(
 						champion.roles.entrySet().stream().map(e->new ChampionRole<>(champion, e.getKey(), e.getValue())).collect(Collectors.toSet())));
 		
-		Map<Lane, Champ> championRoles = new RoleIdentifier<>(lanes, championsRoles).identifyRoles(champions);
+		Map<Champ, Lane> championRoles = new RoleIdentifier<>(lanes, championsRoles).identifyRoles(champions);
 		assertThat(championRoles)
 				.as("A real match is guessed correctly.")
-				.containsEntry(top, gangplank)
-				.containsEntry(jg, nunu)
-				.containsEntry(mid, sylas)
-				.containsEntry(adc, sivir)
-				.containsEntry(sup, tahm);
+				.containsEntry(gangplank, top)
+				.containsEntry(nunu, jg)
+				.containsEntry(sylas, mid)
+				.containsEntry(sivir, adc)
+				.containsEntry(tahm, sup);
 	}
 	
 	

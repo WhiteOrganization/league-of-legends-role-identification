@@ -1,12 +1,9 @@
 <configuration>
-    <property file="src\main\resources\application.properties"/>
-
-
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${logging.file.path}/${project.artifactId}.log</file>
+        <file>target/archive-tmp/logs/league-of-legends-role-identification.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!-- daily rollover -->
-            <fileNamePattern>${logging.file.path}/%d{yyyy/MM}/${project.artifactId}.gz</fileNamePattern>
+            <fileNamePattern>target/archive-tmp/logs/%d{yyyy/MM}/league-of-legends-role-identification.gz</fileNamePattern>
 
             <!-- keep 1 day' worth of history capped at 1GB total size -->
             <maxHistory>1</maxHistory>
@@ -14,13 +11,13 @@
         </rollingPolicy>
         <append>true</append>
         <encoder>
-            <pattern>${logging.pattern.file}</pattern>
+            <pattern>%d{HH:mm:ss.SSS} %-5level %logger{90}%msg%n</pattern>
         </encoder>
     </appender>
 
     <appender name="STDOUT" target="System.out" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>${logging.pattern.console}</pattern>
+            <pattern>%d{HH:mm:ss.SSS} %-5level %logger{36}%msg%n</pattern>
         </encoder>
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>TRACE</level>
@@ -29,10 +26,10 @@
 
 <!--    <logger name="org" level="TRACE"/>-->
 
-    <root level="${logging.level.root}">
+    <root level="TRACE">
         <appender-ref ref="FILE" />
     </root>
-    <root level="${logging.level.root}">
+    <root level="TRACE">
         <appender-ref ref="STDOUT" />
     </root>
 

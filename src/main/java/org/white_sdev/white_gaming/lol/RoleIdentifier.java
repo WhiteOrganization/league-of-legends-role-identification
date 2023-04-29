@@ -281,12 +281,12 @@ public class RoleIdentifier<Champion, Role> {
 	//endregion static
 	
 	//region Main Functionality
-	public Map<Role, Champion> identifyRoles(Set<Champion> champions){
+	public Map<Champion, Role> identifyRoles(Set<Champion> champions){
 		String logID="::identifyRoles([champions]): ";
 		log.trace("{}Start ", logID);
 		List<Champion> unassignedChampions = new ArrayList<>(champions);
 		List<Role> unassignedRoles = new ArrayList<>(roles);
-		Map<Role, Champion> guesstimate = new HashMap<>();
+		Map<Champion, Role> guesstimate = new HashMap<>();
 		Set<ChampionRole<Champion, Role>> primaryChampionsRole = getPrimaryChampionsRole(champions);
 		log.debug("{}primaryChampionsRole:{}", logID, primaryChampionsRole);
 		
@@ -309,22 +309,24 @@ public class RoleIdentifier<Champion, Role> {
 				
 				if (championsThatCanBeInThatRole.size() == 1) {
 					log.debug("{}Checking for petty champions", logID);
-					Optional<Champion> optionalPettyChampion = only1ChampionHasThisRoleAndTheRestHaveMoreRoles(unassignedRoles, unassignedChampions, role);
-					if(optionalPettyChampion.isPresent()){
-						Champion pettyChampion = optionalPettyChampion.get();
-						log.debug("{}ASSIGNED - {} has only this role:{} available, and it will be assigned to it as a token of pity.", logID, pettyChampion, role);
-						unassignedRoles.remove(role);
-						unassignedChampions.remove(pettyChampion);
-						guesstimate.put(role, pettyChampion);
-						iterationAssignedRole = true;
-						lastIterationAssignedRole = true;
-						continue;
+					if(!lastIterationAssignedRole) {
+						Optional<Champion> optionalPettyChampion = only1ChampionHasThisRoleAndTheRestHaveMoreRoles(unassignedRoles, unassignedChampions, role);
+						if (optionalPettyChampion.isPresent()) {
+							Champion pettyChampion = optionalPettyChampion.get();
+							log.debug("{}ASSIGNED - {} has only this role:{} available, and it will be assigned to it as a token of pity.", logID, pettyChampion, role);
+							unassignedRoles.remove(role);
+							unassignedChampions.remove(pettyChampion);
+							guesstimate.put(pettyChampion, role);
+							iterationAssignedRole = true;
+							lastIterationAssignedRole = true;
+							continue;
+						}
 					}
 					var foundChampion = championsThatCanBeInThatRole.iterator().next();
 					log.debug("{}ASSIGNED - foundChampion:{} to role:{}", logID, foundChampion, role);
 					unassignedRoles.remove(role);
 					unassignedChampions.remove(foundChampion);
-					guesstimate.put(role, foundChampion);
+					guesstimate.put(foundChampion, role);
 					iterationAssignedRole = true;
 				}
 				
@@ -339,7 +341,7 @@ public class RoleIdentifier<Champion, Role> {
 						log.debug("{}ASSIGNED - a primary role on champion:{} to role:{} was found.", logID, foundChampion, role);
 						unassignedRoles.remove(role);
 						unassignedChampions.remove(foundChampion);
-						guesstimate.put(role, foundChampion);
+						guesstimate.put(foundChampion, role);
 						iterationAssignedRole = true;
 						lastIterationAssignedRole = true;
 						continue;
@@ -349,7 +351,7 @@ public class RoleIdentifier<Champion, Role> {
 					log.debug("{}ASSIGNED - No primary role but found secondary on champion:{} to role:{}", logID, foundChampion, role);
 					unassignedRoles.remove(role);
 					unassignedChampions.remove(foundChampion);
-					guesstimate.put(role, foundChampion);
+					guesstimate.put(foundChampion, role);
 				}
 			}
 			if((!lastIterationAssignedRole && iterationAssignedRole) || unassignedRoles.isEmpty()) break;
@@ -358,7 +360,7 @@ public class RoleIdentifier<Champion, Role> {
 		
 		log.debug("{}Adding the rest of the Champions:{} that could not find any role of:{}", logID, unassignedChampions, unassignedRoles);
 		
-		for (int i = 0; i < unassignedChampions.size();i++)  guesstimate.put(unassignedRoles.get(i), unassignedChampions.get(i));
+		for (int i = 0; i < unassignedChampions.size();i++)  guesstimate.put(unassignedChampions.get(i), unassignedRoles.get(i));
 		
 		log.info("{}Team Composition Guessed: {}", logID, guesstimate);
 		return guesstimate;
