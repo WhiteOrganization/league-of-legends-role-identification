@@ -19,7 +19,7 @@ echo.         echo ^>^&2 "1) Stash your changes: 'git stash'" >> %HOOK_FILE%
 echo.         echo ^>^&2 "2) Create and checkout a new branch: 'git checkout -b new-branch'" >> %HOOK_FILE%
 echo.         echo ^>^&2 "3) Apply the stashed changes to the new branch: 'git stash apply'" >> %HOOK_FILE%
 echo.         echo ^>^&2 "4) Then push from there and generate a Pull Request to this branch." >> %HOOK_FILE%
-echo.         echo ^>^&2 exit 1 >> %HOOK_FILE%
+echo          exit 1 >> %HOOK_FILE%
 echo       fi >> %HOOK_FILE%
 echo     done >> %HOOK_FILE%
 echo done >> %HOOK_FILE%
