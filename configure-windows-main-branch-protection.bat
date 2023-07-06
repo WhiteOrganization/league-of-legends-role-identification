@@ -25,7 +25,7 @@ echo     done >> %HOOK_FILE%
 echo done >> %HOOK_FILE%
 echo exit 0 >> %HOOK_FILE%
 
-echo Created pre-push hook successfully, your branch is protected from yourself now :D
+echo Created pre-push hook successfully, now `push`es are blocked on the main branches.
 pause
 exit
 REM endlocal
