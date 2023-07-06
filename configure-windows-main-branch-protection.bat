@@ -28,4 +28,5 @@ echo exit 0 >> %HOOK_FILE%
 echo Created pre-push hook successfully, your branch is protected from yourself now :D
 pause
 exit
+
 REM endlocal
