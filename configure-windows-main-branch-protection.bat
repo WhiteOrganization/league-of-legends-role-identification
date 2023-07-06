@@ -1,17 +1,31 @@
 @echo off
-REM Navigate to the .git/hooks directory
-cd .git\hooks
+setlocal enabledelayedexpansion
 
-REM Create the pre-push hook script
-echo @echo off > pre-push
-echo for /F "tokens=2" %%%%a in ('git branch --show-current') do set current_branch=%%%%a >> pre-push
-echo if "%%current_branch%%"=="main" goto :block >> pre-push
-echo if "%%current_branch%%"=="master" goto :block >> pre-push
-echo if "%%current_branch%%"=="development" goto :block >> pre-push
-echo exit /b 0 >> pre-push
-echo :block >> pre-push
-echo echo Push to %%current_branch%% is not allowed. Please follow these steps to move your changes to a new branch: >> pre-push
-echo echo 1. Stash your changes: git stash >> pre-push
-echo echo 2. Create and checkout a new branch: git checkout -b new-branch >> pre-push
-echo echo 3. Apply the stashed changes to the new branch: git stash apply >> pre-push
-echo exit /b 1 >> pre-push
+set HOOKS_FOLDER=.git\hooks
+set HOOK_FILE=%HOOKS_FOLDER%\pre-push
+
+echo #^^!/bin/bash > %HOOK_FILE%
+echo. >> %HOOK_FILE%
+echo protected_branches=("main" "master" "development") >> %HOOK_FILE%
+echo. >> %HOOK_FILE%
+echo while read -r local_ref local_sha remote_ref remote_sha >> %HOOK_FILE%
+echo do >> %HOOK_FILE%
+echo   for branch in "${protected_branches[@]}" >> %HOOK_FILE%
+echo   do >> %HOOK_FILE%
+echo       if ^[^[ ^$remote_ref == refs/heads/^$branch ^]^] >> %HOOK_FILE%
+echo       then >> %HOOK_FILE%
+echo.         echo ^>^&2 "Pushing to branch $branch is not allowed. To push to this branch:" >> %HOOK_FILE%
+echo.         echo ^>^&2 "1) Stash your changes: 'git stash'" >> %HOOK_FILE%
+echo.         echo ^>^&2 "2) Create and checkout a new branch: 'git checkout -b new-branch'" >> %HOOK_FILE%
+echo.         echo ^>^&2 "3) Apply the stashed changes to the new branch: 'git stash apply'" >> %HOOK_FILE%
+echo.         echo ^>^&2 "4) Then push from there and generate a Pull Request to this branch." >> %HOOK_FILE%
+echo.         echo ^>^&2 exit 1 >> %HOOK_FILE%
+echo       fi >> %HOOK_FILE%
+echo     done >> %HOOK_FILE%
+echo done >> %HOOK_FILE%
+echo exit 0 >> %HOOK_FILE%
+
+echo Created pre-push hook successfully, your branch is protected from yourself now :D
+pause
+exit
+REM endlocal
