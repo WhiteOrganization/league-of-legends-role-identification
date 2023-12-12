@@ -331,7 +331,7 @@ public class RoleIdentifier<Champion, Role> {
 				}
 				
 				if(!lastIterationAssignedRole && !championsThatCanBeInThatRole.isEmpty()){
-					if(championsThatCanBeInThatRole.size()>1 && championsWithPrimary.size()>=1){
+					if(championsThatCanBeInThatRole.size()>1 && !championsWithPrimary.isEmpty()){
 						log.trace("{}Obtaining champion with primary role with the highest win-rate", logID);
 						Champion foundChampion = championsWithPrimary.size()>1 ? primaryChampionsRole.stream()
 								.filter(pcr->championsWithPrimary.contains(pcr.champion))
@@ -389,7 +389,7 @@ public class RoleIdentifier<Champion, Role> {
 		return singleRoleChampion == null?Optional.empty():Optional.of(singleRoleChampion);
 	}
 	
-	private Champion getHighestWinRateForRole(Set<Champion> champions, Role role) {
+	public Champion getHighestWinRateForRole(Set<Champion> champions, Role role) {
 		String logID="::getHighestWinRate([championsThatCanBeInThatRole]): ";
 		log.trace("{}Start ", logID);
 		Set<ChampionRole<Champion, Role>> filteredChampionRoles = championRoles.stream().filter(cr->champions.contains(cr.champion) && Objects.equals(cr.role, role)).collect(Collectors.toSet());
