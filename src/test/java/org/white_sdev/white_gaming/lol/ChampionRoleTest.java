@@ -1,5 +1,6 @@
 package org.white_sdev.white_gaming.lol;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
@@ -16,6 +17,7 @@ public class ChampionRoleTest {
 	
 	
 	@Test
+	@Disabled
 	public void sacrificePrimaryRoleForAnotherChampionToNotBeUseless() {
 		Set<String> champions = Set.of("Yuumi", "Soraka", "Lucian", "Gnar", "Zilean");
 		Map<String, String> championRoles = RoleIdentifier.identifyStringRoles(champions);

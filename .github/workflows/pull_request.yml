@@ -20,6 +20,6 @@ jobs:
           java-version: '19'
           distribution: 'adopt'
 
-      - name: Build and test
+      - name: Build & run UT and IT
         run: |
-          mvn test verify
+          mvn clean compile test verify
