@@ -4,10 +4,10 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <!-- region Your particular project data -->
+    <!-- region Project configuration -->
     <groupId>org.white_sdev.white_gaming.lol</groupId>
     <artifactId>league-of-legends-role-identification</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <name>${project.groupId}:${project.artifactId}</name>
     <description>This library will help you to take an educated guess and calculate the rol/position/lane in which a champion will or should be in a 5v5 team of a League of Legends match</description>
     <!--endregion-->
