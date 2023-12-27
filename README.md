@@ -4,7 +4,7 @@ This library will help you to take an educated guess and calculate the rol/posit
 ## 1) What is this repository for?
 
 ### 1.1) Quick summary
-Version: `1.0.1`
+Version: `1.0.2`
 
 This library will help you to take an educated guess and calculate the rol/position/lane in which a champion will or should be in a 5v5 team of a League of Legends match.
 
