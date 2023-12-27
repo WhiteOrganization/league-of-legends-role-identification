@@ -267,14 +267,14 @@ public class RoleIdentifier<Champion, Role> {
 	}
 	
 	public static Map<String, String> identifyStringRoles(Set<String> champions){
-		var roles = new LinkedHashSet<String>(){{
+		Set<String> roles = new LinkedHashSet<String>(){{
 			add("Top");
 			add("Middle");
 			add("Jungle");
 			add("Bottom");
 			add("Utility");
 		}};
-		var championRoles = getStringChampionRoles();
+		Set<ChampionRole<String, String>> championRoles = getStringChampionRoles();
 		return new RoleIdentifier<>(roles, championRoles).identifyRoles(champions);
 	}
 	
@@ -296,7 +296,7 @@ public class RoleIdentifier<Champion, Role> {
 			boolean iterationAssignedRole = false;
 			log.debug("{}Iteration:{}.  unassignedRoles:{}.  unassignedChampions:{}{}",
 					  logID, i, unassignedRoles, unassignedChampions, lastIterationAssignedRole?"":" FLAGGED TO SOLVE CONFLICTS");
-			for (var role : new ArrayList<>(unassignedRoles)) {
+			for (Role role : new ArrayList<>(unassignedRoles)) {
 				log.debug("{}Role:{}", logID, role);
 				
 				Set<Champion> championsWithPrimary = getChampionsWithPrimaryRole(role, unassignedChampions, primaryChampionsRole);
@@ -322,7 +322,7 @@ public class RoleIdentifier<Champion, Role> {
 							continue;
 						}
 					}
-					var foundChampion = championsThatCanBeInThatRole.iterator().next();
+					Champion foundChampion = championsThatCanBeInThatRole.iterator().next();
 					log.debug("{}ASSIGNED - foundChampion:{} to role:{}", logID, foundChampion, role);
 					unassignedRoles.remove(role);
 					unassignedChampions.remove(foundChampion);
@@ -336,7 +336,7 @@ public class RoleIdentifier<Champion, Role> {
 						Champion foundChampion = championsWithPrimary.size()>1 ? primaryChampionsRole.stream()
 								.filter(pcr->championsWithPrimary.contains(pcr.champion))
 								.max(Comparator.comparingDouble(ChampionRole::getWinRate))
-								.map(cr->cr.champion).orElseThrow()
+								.map(cr->cr.champion).orElseThrow(()->new NoSuchElementException("No champion found"))
 								:championsWithPrimary.iterator().next();
 						log.debug("{}ASSIGNED - a primary role on champion:{} to role:{} was found.", logID, foundChampion, role);
 						unassignedRoles.remove(role);
@@ -375,7 +375,7 @@ public class RoleIdentifier<Champion, Role> {
 						.collect(Collectors.toSet());
 		log.debug("{}unassignedChampionsWithUnassignedRoles:{}", logID, unassignedChampionsWithUnassignedRoles);
 		Champion singleRoleChampion = null;
-		for(var championRoleEntity: unassignedChampionsWithUnassignedRoles){
+		for(ChampionRole<Champion, Role> championRoleEntity: unassignedChampionsWithUnassignedRoles){
 			log.debug("{}Checking championRoleEntity:{}", logID, championRoleEntity);
 			Set<ChampionRole<Champion, Role>> thisChampionRoles = unassignedChampionsWithUnassignedRoles.stream().filter(cr->Objects.equals(cr,championRoleEntity)).collect(Collectors.toSet());
 			log.debug("{}thisChampionRoles:{}", logID, thisChampionRoles);
@@ -394,7 +394,7 @@ public class RoleIdentifier<Champion, Role> {
 		log.trace("{}Start ", logID);
 		Set<ChampionRole<Champion, Role>> filteredChampionRoles = championRoles.stream().filter(cr->champions.contains(cr.champion) && Objects.equals(cr.role, role)).collect(Collectors.toSet());
 		log.debug("{}Champions to compare:{}", logID, filteredChampionRoles);
-		var max = filteredChampionRoles.stream().max(Comparator.comparingDouble(ChampionRole::getWinRate)).map(cr->cr.champion).orElseThrow();
+		Champion max = filteredChampionRoles.stream().max(Comparator.comparingDouble(ChampionRole::getWinRate)).map(cr->cr.champion).orElseThrow(()->new NoSuchElementException("No champion found"));
 		log.debug("{}Champion with the highest win-rate: {}", logID,max);
 		return max;
 	}
