@@ -7,22 +7,22 @@
     <!-- region Project configuration -->
     <groupId>org.white_sdev.white_gaming.lol</groupId>
     <artifactId>league-of-legends-role-identification</artifactId>
-    <version>1.0.6</version>
+    <version>1.0.7</version>
     <name>${project.groupId}:${project.artifactId}</name>
     <description>This library will help you to take an educated guess and calculate the rol/position/lane in which a champion will or should be in a 5v5 team of a League of Legends match</description>
     <!--endregion-->
 
     <properties>
-        <!-- region Configure Java version & Main full package and class name -->
+        <!-- region Configures Java version & Main full package and class name -->
         <!-- WARNING: add release scope if 1.9 and older versions are used at build/plugins/plugin/[maven-compiler-plugin]/configuration-->
-        <java.version>19</java.version>
+        <java.version>8</java.version>
         <!--endregion-->
         <!-- region General configurations of the project -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
-        <!-- In case the compiling device doesn't have docker installed you can create the docker img with Jib -->
+        <!-- In case the compiling device doesn't have Docker installed, you can create the docker img with Jib -->
 <!--        <jkube.build.strategy>jib</jkube.build.strategy>-->
         <!-- endregion General configurations of the project -->
         <junit.jupiter.version>5.9.2</junit.jupiter.version>
@@ -46,7 +46,7 @@
 
         <!-- region Sl4fj Provider -->
         <!-- https://www.slf4j.org/codes.html#noProviders -->
-        <!-- This is the one Spring uses -->
+        <!-- This is the one that Spring uses -->
         <!-- https://logback.qos.ch/manual/layouts.html -->
         <!-- this will allow you to use logback-test.xml file -->
         <!-- https://mvnrepository.com/artifact/ch.qos.logback/logback-classic -->
@@ -65,7 +65,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.26</version>
+            <version>1.18.30</version>
             <scope>provided</scope>
         </dependency>
         <!-- endregion Lombok (Annotations) Configuration-->
@@ -130,7 +130,7 @@
                     <source>${java.version}</source>
                     <target>${java.version}</target>
                     <!-- WARNING: add release property for 1.9 and older versions -->
-                    <release>${java.version}</release>
+<!--                    <release>${java.version}</release>-->
                 </configuration>
             </plugin>
             <!-- endregion -->
