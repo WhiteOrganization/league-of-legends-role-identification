@@ -1,10 +1,11 @@
 jdk:
   - openjdk19
 before_install:
-  - sdk install java
-  - sdk use java
+  - sdk install java 21.0.1-temurin
+  - sdk use java 21.0.1-temurin
   - sdk install maven
   - mvn -v
 install:
   - java -version
+  - mvn -version
   - mvn install -Dmaven.javadoc.skip=true -DskipTests
