@@ -7,7 +7,7 @@
     <!-- region Project configuration -->
     <groupId>org.white_sdev.white_gaming.lol</groupId>
     <artifactId>league-of-legends-role-identification</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
     <name>${project.groupId}:${project.artifactId}</name>
     <description>This library will help you to take an educated guess and calculate the rol/position/lane in which a champion will or should be in a 5v5 team of a League of Legends match</description>
     <!--endregion-->
@@ -50,11 +50,12 @@
         <!-- https://logback.qos.ch/manual/layouts.html -->
         <!-- this will allow you to use logback-test.xml file -->
         <!-- https://mvnrepository.com/artifact/ch.qos.logback/logback-classic -->
-        <!-- requires slf4j-api & logback-core (Lombok includes it) -->
+        <!-- require slf4j-api & logback-core (Lombok includes it) -->
+        <!--suppress VulnerableLibrariesLocal -->
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>1.4.6</version>
+            <version>1.4.7</version>
             <scope>compile</scope>
         </dependency>
         <!-- endregion SL4fj Provider -->
@@ -129,7 +130,7 @@
                     <source>${java.version}</source>
                     <target>${java.version}</target>
                     <!-- WARNING: add release property for 1.9 and older versions -->
-                    <release>${java.version}</release>
+<!--                    <release>${java.version}</release>-->
                 </configuration>
             </plugin>
             <!-- endregion -->
