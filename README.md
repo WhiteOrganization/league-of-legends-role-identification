@@ -4,7 +4,7 @@ This library will help you to take an educated guess and calculate the rol/posit
 ## 1) What is this repository for?
 
 ### 1.1) Quick summary
-Version: `1.0.5`
+Version: `1.0.6`
 
 This library will help you to take an educated guess and calculate the rol/position/lane in which a champion will or should be in a 5v5 team of a League of Legends match.
 
@@ -15,7 +15,9 @@ _Not endorsed by League of Legends_
 
 
 ### 2.1) Summary of set up
-You can use this library calling its main process:
+You can use this library calling its main process: `identifyRoles(Set<Champion> champions)`
+[Here are a couple of examples](https://github.com/WhiteOrganization/league-of-legends-role-identification/blob/main/src/test/java/org/white_sdev/white_gaming/lol/ChampionRoleTest.java) although the implementation can be customized on the user end.
+
 
 #### 2.1.1) Development environment
 - [JDK](https://openjdk.org/) version: 	`1.19`
