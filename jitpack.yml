@@ -1,2 +1,4 @@
 jdk:
   - openjdk19
+install:
+  - java -version
