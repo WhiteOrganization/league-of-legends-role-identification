@@ -388,13 +388,25 @@ public class RoleIdentifier<Champion, Role> {
 		log.debug("{}Petty Champion found: {}", logID, singleRoleChampion);
 		return singleRoleChampion == null?Optional.empty():Optional.of(singleRoleChampion);
 	}
-	
-	public Champion getHighestWinRateForRole(Set<Champion> champions, Role role) {
+
+
+	public Champion getHighestWinRateForRole(Set<Champion> champions, Role role){
+		return getHighestWinRateForRole(champions, role, false).orElseThrow(()->new NoSuchElementException("No champion found"));
+	}
+	public Optional<Champion> getHighestWinRateForRole(Set<Champion> champions, Role role, boolean returnRandomWhenImpasse) {
 		String logID="::getHighestWinRate([championsThatCanBeInThatRole]): ";
 		log.trace("{}Start ", logID);
+		if(champions==null || champions.isEmpty()) throw new IllegalArgumentException("champions must be provided to avoid conflicted scenarios.");
 		Set<ChampionRole<Champion, Role>> filteredChampionRoles = championRoles.stream().filter(cr->champions.contains(cr.champion) && Objects.equals(cr.role, role)).collect(Collectors.toSet());
 		log.debug("{}Champions to compare:{}", logID, filteredChampionRoles);
-		Champion max = filteredChampionRoles.stream().max(Comparator.comparingDouble(ChampionRole::getWinRate)).map(cr->cr.champion).orElseThrow(()->new NoSuchElementException("No champion found"));
+		if(filteredChampionRoles.isEmpty() && returnRandomWhenImpasse) {
+				log.debug("{}No champion has the required criteria.", logID);
+				return Optional.of(champions.iterator().next());
+		}
+		Optional<Champion> max = filteredChampionRoles.stream().max(Comparator.comparingDouble(ChampionRole::getWinRate)).map(cr->Optional.of(cr.champion)).orElseGet(()-> {
+			log.trace("{}No champion found with the criteria", logID);
+			return Optional.empty();
+		});
 		log.debug("{}Champion with the highest win-rate: {}", logID,max);
 		return max;
 	}
