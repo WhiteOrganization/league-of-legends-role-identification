@@ -1,4 +1,10 @@
 jdk:
   - openjdk19
+before_install:
+  - sdk install java
+  - sdk use java
+  - sdk install maven
+  - mvn -v
 install:
   - java -version
+  - mvn install -Dmaven.javadoc.skip=true -DskipTests
