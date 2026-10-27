@@ -4,7 +4,7 @@ This library will help you to take an educated guess and calculate the rol/posit
 ## 1) What is this repository for?
 
 ### 1.1) Quick summary
-Version: `1.0.8`
+Version: `1.1.0`
 
 This library will help you to take an educated guess and calculate the rol/position/lane in which a champion will or should be in a 5v5 team of a League of Legends match.
 
@@ -17,6 +17,14 @@ _Not endorsed by League of Legends_
 ### 2.1) Summary of set up
 You can use this library calling its main process: `identifyRoles(Set<Champion> champions)`
 [Here are a couple of examples](https://github.com/WhiteOrganization/league-of-legends-role-identification/blob/main/src/test/java/org/white_sdev/white_gaming/lol/ChampionRoleTest.java) although the implementation can be customized on the user end.
+
+When the weights you give it are **how often each champion is played in each role** (recorded matches, games, pick
+counts) rather than a win rate, call `identifyMostLikelyRoles(Set<Champion> champions)` instead
+([examples](https://github.com/WhiteOrganization/league-of-legends-role-identification/blob/main/src/test/java/org/white_sdev/white_gaming/lol/MostLikelyRolesTest.java)).
+It turns each champion's weights into the share of its games played in each role and returns the layout of the whole
+team with the highest combined likelihood, one distinct role per champion. `identifyRoles` fills the roles one at a
+time and expects a table that lists a champion only in the roles it is really played in; match data lists nearly every
+champion in nearly every role, which makes it pull champions into roles they were played in a handful of times.
 
 
 #### 2.1.1) Development environment
