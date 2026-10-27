@@ -366,6 +366,123 @@ public class RoleIdentifier<Champion, Role> {
 		return guesstimate;
 	}
 	
+	/**
+	 * Score a champion gets for a role it has never been recorded in.
+	 * <p>
+	 * It is the logarithm of a one-in-a-billion chance: low enough that any role the champion is really played in
+	 * wins, yet finite, so a team where somebody has to play out of position still gets an answer instead of none.
+	 */
+	static final double UNRECORDED_ROLE_SCORE = Math.log(1e-9);
+
+	/**
+	 * Guesses every champion's role by finding the most likely way to lay out the whole team, instead of filling the
+	 * roles one after the other.
+	 * <p>
+	 * <b>The weights must say how often each champion is played in each role</b> (recorded matches, games, pick
+	 * counts), not how well it does there. Each champion's weights are turned into the share of its games played in
+	 * each role, and the answer is the assignment, one distinct role per champion, whose shares multiply to the
+	 * highest value: the likeliest team, if each champion picks its role independently of the others.
+	 * <p>
+	 * This exists because {@link #identifyRoles(Set)} assumes a table that lists a champion only in the roles it is
+	 * really played in, and visits the roles one at a time, giving each to the heaviest candidate still unassigned.
+	 * With weights taken from real match data nearly every champion appears in nearly every role, a handful of games
+	 * being enough, so the first roles visited take champions that belong elsewhere: a team of Shaco, Miss Fortune,
+	 * Leona and Xerath came out with Shaco in the top lane (2% of his games) and Leona in the jungle (4 games out of
+	 * 856,000). Weighing the team as a whole leaves those games where they belong, in the noise.
+	 * <p>
+	 * Shares are used rather than the raw weights so that a heavily played champion's minor role cannot outweigh a
+	 * rarely played champion's main one: every champion speaks for itself, whatever its popularity.
+	 * <p>
+	 * A champion with no weights at all is equally likely in every role, so it takes whichever role the others
+	 * leave. With fewer champions than roles, the roles nobody is likely to play are the ones left empty.
+	 *
+	 * @param champions The champions of one team, at most one per role.
+	 * @return the role guessed for each champion, every one of them distinct.
+	 * @throws IllegalArgumentException if there are more champions than roles to give them.
+	 */
+	public Map<Champion, Role> identifyMostLikelyRoles(Set<Champion> champions) {
+		String logID = "::identifyMostLikelyRoles([champions]): ";
+		log.trace("{}Start - champions:{}", logID, champions);
+		Objects.requireNonNull(champions, "The champions to identify the roles of cannot be null.");
+		List<Role> orderedRoles = new ArrayList<>(roles);
+		if (champions.size() > orderedRoles.size())
+			throw new IllegalArgumentException("There are " + champions.size() + " champions but only "
+					+ orderedRoles.size() + " roles to give them; a team holds one champion per role.");
+
+		List<Champion> orderedChampions = new ArrayList<>(champions);
+		double[][] scores = new double[orderedChampions.size()][];
+		for (int champion = 0; champion < orderedChampions.size(); champion++)
+			scores[champion] = roleScoresOf(orderedChampions.get(champion), orderedRoles);
+
+		int[] bestAssignment = new int[orderedChampions.size()];
+		searchBestAssignment(scores, 0, new int[orderedChampions.size()], new boolean[orderedRoles.size()], 0d,
+				new double[]{Double.NEGATIVE_INFINITY}, bestAssignment);
+
+		Map<Champion, Role> guesstimate = new LinkedHashMap<>();
+		for (int champion = 0; champion < orderedChampions.size(); champion++)
+			guesstimate.put(orderedChampions.get(champion), orderedRoles.get(bestAssignment[champion]));
+		log.info("{}Team Composition Guessed: {}", logID, guesstimate);
+		return guesstimate;
+	}
+
+	/**
+	 * @param champion The champion to score.
+	 * @param roles    The roles, in the order the scores are returned in.
+	 * @return for each role, the logarithm of the share of the champion's games played there; every role scores
+	 * the same when the champion has no games recorded at all.
+	 */
+	private double[] roleScoresOf(Champion champion, List<Role> roles) {
+		String logID = "::roleScoresOf([champion, roles]): ";
+		double[] weights = new double[roles.size()];
+		for (ChampionRole<Champion, Role> championRole : championRoles) {
+			int role = roles.indexOf(championRole.role);
+			if (Objects.equals(championRole.champion, champion) && role >= 0 && championRole.winRate > 0)
+				weights[role] += championRole.winRate;
+		}
+		double total = Arrays.stream(weights).sum();
+		double[] scores = new double[roles.size()];
+		for (int role = 0; role < roles.size(); role++)
+			scores[role] = total == 0 ? Math.log(1d / roles.size())
+					: weights[role] == 0 ? UNRECORDED_ROLE_SCORE : Math.log(weights[role] / total);
+		log.debug("{}champion:{}, weights:{}, scores:{}", logID, champion, Arrays.toString(weights),
+				Arrays.toString(scores));
+		return scores;
+	}
+
+	/**
+	 * Tries every way of giving each champion a distinct role and keeps the one with the highest total score.
+	 * <p>
+	 * Exhaustive on purpose: a team is at most five champions over five roles, 120 layouts, so there is nothing to
+	 * gain from a cleverer search and a lot of clarity to lose. On a tie the first layout found wins, which follows
+	 * the order the roles and the champions were given in.
+	 *
+	 * @param scores         Score of each champion in each role.
+	 * @param champion       The champion being placed.
+	 * @param assignment     The role given to each champion placed so far.
+	 * @param roleTaken      Which roles are already given.
+	 * @param score          Total score of the champions placed so far.
+	 * @param bestScore      Single-element holder of the best total found.
+	 * @param bestAssignment Receives the layout with the best total.
+	 */
+	private static void searchBestAssignment(double[][] scores, int champion, int[] assignment, boolean[] roleTaken,
+											 double score, double[] bestScore, int[] bestAssignment) {
+		if (champion == scores.length) {
+			if (score > bestScore[0]) {
+				bestScore[0] = score;
+				System.arraycopy(assignment, 0, bestAssignment, 0, assignment.length);
+			}
+			return;
+		}
+		for (int role = 0; role < roleTaken.length; role++) {
+			if (roleTaken[role]) continue;
+			roleTaken[role] = true;
+			assignment[champion] = role;
+			searchBestAssignment(scores, champion + 1, assignment, roleTaken, score + scores[champion][role],
+					bestScore, bestAssignment);
+			roleTaken[role] = false;
+		}
+	}
+
 	private Optional<Champion> only1ChampionHasThisRoleAndTheRestHaveMoreRoles(List<Role> unassignedRoles, List<Champion> unassignedChampions, Role role) {
 		String logID="::only1ChampionHasThisRoleAndTheRestHaveMoreRoles([unassignedRoles, unassignedChampions, role]): ";
 		log.debug("{}Start - unassignedRoles:{}.  role:{}", logID, unassignedRoles, role);
